@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "outDir": "../../dist/renderer/",
+    "sourceMap": true,
+    "target": "ES2015",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react"
+  },
+  "include": ["../../src/renderer/**/*"]
+}
