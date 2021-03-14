@@ -6,16 +6,25 @@ import './App.css';
 
 const { DirectoryTree } = Tree;
 
-const testPath = '/home/jan/Projekty/debra-editor';
+// const testPath = '/home/jan/Projekty/debra-test-project';
+// const testPath = '/home/debra/debra-test-project';
+
+declare global {
+  interface Window {
+    electron: any;
+  }
+}
 
 export default function App() {
+  const [projectPath, setProjectPath] = useState('');
   const [directoryEntries, setDirectoryEntries] = useState<any[]>([]);
   const [selectedFile, setSelectedFile] = useState<string>();
-  const [expandedDirectories, setExpandedDirecotires] = useState<string[]>([]);
   const [fileContent, setFileContent] = useState<string>('');
+  const [building, setBuilding] = useState(false);
+  const [debugging, setDebugging] = useState(false);
 
-  useEffect(() => {
-    async function readDir(dirPath: string): Promise<string[]> {
+  const refreshDirTree = useCallback(async (dirPath: string) => {
+    async function readDir(dirPath: string): Promise<any[]> {
       const entries = await window.electron.readDir(dirPath);
 
       const result = [];
@@ -43,12 +52,12 @@ export default function App() {
       return result;
     }
 
-    async function getDirectoryEntries() {
-      setDirectoryEntries(await readDir(testPath));
-    }
-
-    getDirectoryEntries();
+    setDirectoryEntries(await readDir(dirPath));
   }, []);
+
+  useEffect(() => {
+    refreshDirTree(projectPath);
+  }, [projectPath]);
 
   useEffect(() => {
     async function getFileContent() {
@@ -58,40 +67,53 @@ export default function App() {
     selectedFile && getFileContent();
   }, [selectedFile]);
 
-  // const handleDirectoryExpand = useCallback(async (expanded: string[]) => {
-  //   const expandedDirectory = expanded.find(dir => !expandedDirectories.includes(dir));
+  const build = useCallback(async () => {
+    setBuilding(true);
+    await window.electron.npm({
+      args: 'run build:main',
+      projectPath: projectPath
+    });
+    // await window.electron.tsBuild(`${testPath}/config/main/tsconfig.json`);
+    setBuilding(false);
+  }, [projectPath]);
 
-  //   if (!expandedDirectory) {
-  //     return;
-  //   }
+  const debug = useCallback(async () => {
+    setDebugging(true);
+    await window.electron.npm({ args: 'run build:main', projectPath: projectPath });
+    await window.electron.npm({ args: 'run build:renderer', projectPath: projectPath });
+    window.electron.npm({ args: 'run start:electron', projectPath: projectPath });
+    window.electron.npm({ args: 'run start:renderer', projectPath: projectPath });
+  }, [projectPath]);
 
-  //   const pathParts = expandedDirectory.split('/');
-  //   let dir = { children: directoryEntries };
+  const stopDebug = useCallback(async () => {
+    window.electron.kill();
+    setDebugging(false);
+  }, []);
 
-  //   while (pathParts.length) {
-  //     const pathPart = pathParts.shift();
-  //     dir = directoryEntries.find(entry => entry.name === pathPart);
-  //   }
+  const npmInstall = useCallback(async () => {
+    // const data = await window.electron.npmInstall(testPath);
+    await window.electron.npm({ args: 'install', projectPath: projectPath });
+    // console.log(data);
+  }, [projectPath]);
 
-  //   if (dir.children) {
-  //     return;
-  //   }
+  const openProject = useCallback(async () => {
+    const result = await window.electron.openDir();
+    if (result.filePaths.length > 0) {
+      setProjectPath(result.filePaths[0]);
+    }
+    
 
-  //   const entries = await window.electron.readDir(expandedDirectory);
-  //   dir.children = entries.map(entry => ({
-  //     title: entry.name,
-  //     key: `${expandedDirectory}/${entry.name}`,
-  //     isLeaf: !entry.directory,
-  //   }));
-
-  //   setDirectoryEntries(directoryEntries);
-  // }, []);
+    console.log(result);
+  }, []);
 
   return (
     <div className="app">
       <div className="header">
-        <Button size="small">Debug</Button>
-        <Button size="small">Build</Button>
+        <Button size="small" onClick={() => refreshDirTree(projectPath)}>Refresh</Button>
+        <Button size="small" onClick={openProject}>Open</Button>
+        <Button size="small" disabled={building} onClick={debugging ? stopDebug : debug}>{debugging ? 'Stop debug' : 'Debug'}</Button>
+        <Button size="small" disabled={building || debugging} onClick={build} loading={building}>Build</Button>
+        <Button size="small" onClick={npmInstall}>npm install</Button>
       </div>
       <div className="content">
         <div className="directory-tree">
@@ -100,12 +122,11 @@ export default function App() {
             defaultExpandAll
             treeData={directoryEntries}
             onSelect={selected => selected.length === 1 && setSelectedFile(selected[0].toString())}
-            // onExpand={expanded => expanded.length && setExpandedDirecotires(expanded.map(e => e.toString()))}
           />
         </div>
         <div className="editor">
           <Editor
-            path={`${testPath}/${selectedFile}`}
+            path={`${projectPath}/${selectedFile}`}
             value={fileContent}
             options={{
               automaticLayout: true,

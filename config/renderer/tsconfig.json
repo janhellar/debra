@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "../../dist/renderer/",
+    "outDir": "../../compiled/renderer/",
     "sourceMap": true,
     "target": "ES2015",
     "module": "commonjs",
