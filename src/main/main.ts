@@ -2,10 +2,11 @@ import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { ipcMain, dialog } from 'electron';
 import { promises as fsPromises, existsSync, writeFileSync } from 'fs';
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, ChildProcess, exec } from 'child_process';
 import { Project } from 'ts-morph';
 import npm from 'npm';
 import { platform } from 'os';
+import kill from 'tree-kill';
 
 const { readdir, readFile } = fsPromises;
 
@@ -71,12 +72,13 @@ ipcMain.handle('npm', (_, options) => {
   // const npm = path.resolve(__dirname, '../../node_modules/.bin/npm');
 
   return new Promise<void>(resolve => {
-    const command = spawn(path.resolve(nodePath, 'npm'), args.split(' '), {
+    const command = spawn('npm', args.split(' '), {
       cwd: projectPath,
-      detached: true,
+      // detached: true,
       // env: process.env,
       // stdio: 'inherit'
-      // shell: true
+      shell: true,
+      windowsHide: true
     });
 
     runningCommands.push(command);
@@ -99,7 +101,14 @@ ipcMain.handle('kill', () => {
   runningCommands.forEach((command, index) => {
     console.log(index, command.pid);
     try {
-      process.kill(-command.pid, 'SIGKILL');
+      kill(command.pid, 'SIGKILL');
+      // if (platform() === 'win32') {
+      //   exec(`taskkill /pid ${command.pid} /T /F`);
+      // } else {
+      //   // process.kill(-command.pid, 'SIGKILL');
+      //   command.kill('SIGKILL');
+      // }
+      
       // command.kill('SIGKILL')
     } catch (error) {
       console.log(error);

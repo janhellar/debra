@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Tree } from 'antd';
 import Editor from "@monaco-editor/react";
+import { CaretRightOutlined } from '@ant-design/icons';
 
 import './App.css';
 
@@ -111,7 +112,7 @@ export default function App() {
       <div className="header">
         <Button size="small" onClick={() => refreshDirTree(projectPath)}>Refresh</Button>
         <Button size="small" onClick={openProject}>Open</Button>
-        <Button size="small" disabled={building} onClick={debugging ? stopDebug : debug}>{debugging ? 'Stop debug' : 'Debug'}</Button>
+        <Button size="small" icon={<CaretRightOutlined />} disabled={building} onClick={debugging ? stopDebug : debug}>{debugging ? 'Stop debug' : 'Debug'}</Button>
         <Button size="small" disabled={building || debugging} onClick={build} loading={building}>Build</Button>
         <Button size="small" onClick={npmInstall}>npm install</Button>
       </div>
