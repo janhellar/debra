@@ -9,6 +9,7 @@ const { DirectoryTree } = Tree;
 
 interface FileTreeProps {
   directoryEntries: DataNode[];
+  editedFiles: string[];
   onFileSelected: (fileName: string) => void;
 }
 
@@ -61,8 +62,28 @@ function ContextDropdown(props: any) {
   );
 }
 
+function highlightEditedFiles(entries: DataNode[], edited: string[]): DataNode[] {
+  return entries.map(entry => {
+    if (entry.isLeaf) {
+      return {
+        ...entry,
+        title: edited.includes(entry.key.toString()) ? (
+          <span style={{ fontWeight: 'bold', fontStyle: 'italic' }}>
+            {entry.title}
+          </span>
+        ) : entry.title
+      };
+    } else {
+      return {
+        ...entry,
+        children: entry.children && highlightEditedFiles(entry.children, edited)
+      };
+    }
+  });
+}
+
 function FileTree(props: FileTreeProps) {
-  const { directoryEntries, onFileSelected } = props;
+  const { directoryEntries, editedFiles, onFileSelected } = props;
 
   const contextMenuContainer = useRef<HTMLDivElement | null>();
 
@@ -101,10 +122,12 @@ function FileTree(props: FileTreeProps) {
     ReactDOM.render(contextMenu.current, contextMenuContainer.current);
   }, []);
 
+  const entries = highlightEditedFiles(directoryEntries, editedFiles);
+
   return (
     <div className="FileTree">
       <DirectoryTree
-        treeData={directoryEntries}
+        treeData={entries}
         onSelect={selected => onFileSelected(selected[0].toString())}
         onRightClick={renderContextMenu}
       />

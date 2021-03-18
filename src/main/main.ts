@@ -163,9 +163,8 @@ ipcMain.handle('load-source', async (_, projectPath: string) => {
 
     for (const entry of entries) {
       if (entry.isDirectory()) {
-        await loadDir(`${dir}/${entry.name}`)
-        
-      } else if (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx') || entry.name.endsWith('.css')) {
+        await loadDir(`${dir}/${entry.name}`);
+      } else {
         const filePath = `${dir}/${entry.name}`;
         const content = await readFile(filePath, 'utf-8');
         results.push({

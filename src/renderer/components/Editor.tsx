@@ -3,10 +3,9 @@ import MonacoEditor, { OnMount, useMonaco } from "@monaco-editor/react";
 
 interface EditorProps {
   projectPath: string;
-  fileContent: string;
   filePath: string;
   onSave: (path: string, content: string) => void;
-  onChange: () => void;
+  onChange: (path: string) => void;
 }
 
 const editorSaveActionId = 'debra-save';
@@ -17,7 +16,7 @@ function removePrefix(project: string, file: string) {
 }
 
 function Editor(props: EditorProps) {
-  const { projectPath, fileContent, filePath, onSave, onChange } = props;
+  const { projectPath, filePath, onSave, onChange } = props;
 
   const monaco = useMonaco();
 
@@ -61,7 +60,7 @@ function Editor(props: EditorProps) {
       const path = editor.getModel()?.uri.path;
       const content = editor.getValue();
       
-      path && onSave(path, content);
+      path && onSave(projectPath + path, content);
     }
 
     editor.addAction({
@@ -74,7 +73,6 @@ function Editor(props: EditorProps) {
 
   return (
     <MonacoEditor
-      value={fileContent}
       path={removePrefix(projectPath, filePath)}
       options={{
         automaticLayout: true,
@@ -84,7 +82,7 @@ function Editor(props: EditorProps) {
       }}
       theme="vs-dark"
       onMount={addSaveAction}
-      onChange={value => value && onChange()}
+      onChange={value => value && onChange(filePath)}
     />
   );
 }
