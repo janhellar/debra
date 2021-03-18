@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Tree } from 'antd';
+import { Button, Tree, Dropdown, Menu } from 'antd';
 import Editor from "@monaco-editor/react";
-import { CaretRightOutlined } from '@ant-design/icons';
+import { FileAddOutlined, FolderAddOutlined } from '@ant-design/icons';
 
 import './App.css';
 
@@ -17,7 +17,7 @@ declare global {
 }
 
 export default function App() {
-  const [projectPath, setProjectPath] = useState('');
+  const [projectPath, setProjectPath] = useState('/home/jan/Projekty/debra-test-project');
   const [directoryEntries, setDirectoryEntries] = useState<any[]>([]);
   const [selectedFile, setSelectedFile] = useState<string>();
   const [fileContent, setFileContent] = useState<string>('');
@@ -107,14 +107,26 @@ export default function App() {
     console.log(result);
   }, []);
 
+  const menu = (
+    <Menu>
+      <Menu.Item key="1">Install</Menu.Item>
+      <Menu.Item key="2">Publish</Menu.Item>
+    </Menu>
+  );
+
   return (
     <div className="app">
       <div className="header">
-        <Button size="small" onClick={() => refreshDirTree(projectPath)}>Refresh</Button>
+        <div className="above-dir-tree">
+          <Button size="small" /*icon={<FileAddOutlined />}*/>New file</Button>
+          <Button size="small" /*icon={<FolderAddOutlined />}*/>New folder</Button>
+        </div>
+        {/* <Button size="small" onClick={() => refreshDirTree(projectPath)}>Refresh</Button>
         <Button size="small" onClick={openProject}>Open</Button>
-        <Button size="small" icon={<CaretRightOutlined />} disabled={building} onClick={debugging ? stopDebug : debug}>{debugging ? 'Stop debug' : 'Debug'}</Button>
+        <Button size="small" disabled={building} onClick={debugging ? stopDebug : debug}>{debugging ? 'Stop' : 'Run'}</Button>
         <Button size="small" disabled={building || debugging} onClick={build} loading={building}>Build</Button>
-        <Button size="small" onClick={npmInstall}>npm install</Button>
+        <Button size="small" onClick={npmInstall}>npm install</Button> */}
+        <Dropdown.Button overlay={menu} onClick={() => debugging ? stopDebug() : debug()}>{debugging ? 'Stop' : 'Run'}</Dropdown.Button>
       </div>
       <div className="content">
         <div className="directory-tree">
@@ -131,7 +143,10 @@ export default function App() {
             value={fileContent}
             options={{
               automaticLayout: true,
-              renderValidationDecorations: 'off'
+              renderValidationDecorations: 'off',
+              minimap: {
+                enabled: false
+              }
             }}
           />
         </div>

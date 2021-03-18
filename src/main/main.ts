@@ -8,7 +8,7 @@ import npm from 'npm';
 import { platform } from 'os';
 import kill from 'tree-kill';
 
-const { readdir, readFile } = fsPromises;
+const { readdir, readFile, writeFile } = fsPromises;
 
 const appRootPath = path.resolve(__dirname, '../..');
 const resourcesPath = path.resolve(appRootPath, '..');
@@ -64,6 +64,10 @@ ipcMain.handle('read-dir', async (_, dirPath) => {
 
 ipcMain.handle('read-file', async (_, filePath) => {
   return await readFile(filePath, 'utf-8');
+});
+
+ipcMain.handle('save-file', async (_, filePath, fileContent) => {
+  return await writeFile(filePath, fileContent);
 });
 
 ipcMain.handle('npm', (_, options) => {
@@ -143,4 +147,56 @@ ipcMain.handle('npm-install', async (_, projectPath) => {
 
 ipcMain.handle('open-dir', () => {
   return dialog.showOpenDialog(win, { properties: ['openDirectory'] });
+});
+
+ipcMain.handle('load-modules', async (_, projectPath: string) => {
+  const results: any[] = [];
+
+  async function loadDir(dir: string) {
+    const entries = await readdir(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        await loadDir(`${dir}/${entry.name}`)
+        
+      } else if (entry.name.endsWith('.ts') || entry.name.endsWith('.json')) {
+        const filePath = `${dir}/${entry.name}`;
+        const content = await readFile(filePath, 'utf-8');
+        results.push({
+          content,
+          path: filePath.substring(projectPath.length)
+        });
+      }
+    }
+  }
+  
+  await loadDir(`${projectPath}/node_modules`);
+  console.log('HOTOVO');
+  return results;
+});
+
+ipcMain.handle('load-source', async (_, projectPath: string) => {
+  const results: any[] = [];
+
+  async function loadDir(dir: string) {
+    const entries = await readdir(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        await loadDir(`${dir}/${entry.name}`)
+        
+      } else if (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx') || entry.name.endsWith('.css')) {
+        const filePath = `${dir}/${entry.name}`;
+        const content = await readFile(filePath, 'utf-8');
+        results.push({
+          content,
+          path: filePath.substring(projectPath.length)
+        });
+      }
+    }
+  }
+  
+  await loadDir(`${projectPath}/src`);
+  console.log('HOTOVO');
+  return results;
 });
