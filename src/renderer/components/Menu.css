@@ -1,24 +1,24 @@
-.AppHeader {
+.Menu {
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 100%;
 }
 
-.AppHeader > .left-section {
+.Menu > .left-section {
   align-items: center;
 }
 
-.AppHeader > .left-section > button:first-child {
+.Menu > .left-section > button:first-child {
   vertical-align: 0px;
   margin-right: 15px;
 }
 
-.AppHeader > .ant-radio-group {
+.Menu > .ant-radio-group {
   display: flex;
 }
 
-/* .AppHeader .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+/* .Menu .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
   color: white;
   border-color: white;
 } */

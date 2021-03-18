@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { DataNode } from 'rc-tree/lib/interface';
 
-import AppLayout from './AppLayout';
-import AppHeader from './AppHeader';
-import AppSider from './AppSider';
-import AppContent from './AppContent';
+import Layout from './Layout';
+import Menu from './Menu';
+import FileTree from './FileTree';
+import Editor from './Editor';
 import { readDir } from '../utils';
 
 function App() {
@@ -22,7 +22,6 @@ function App() {
     refreshDirTree(projectPath);
     async function b() {
       const a = await window.electron.loadModules(projectPath);
-      console.log(a);
     }
     b();
   }, [projectPath]);
@@ -42,20 +41,20 @@ function App() {
   }, []);
 
   const header = (
-    <AppHeader
+    <Menu
       fileChanged={edited}
     />
   );
 
   const sider = (
-    <AppSider
+    <FileTree
       directoryEntries={directoryEntries}
       onFileSelected={setSelectedFile}
     />
   );
 
   const content = (
-    <AppContent
+    <Editor
       projectPath={projectPath}
       fileContent={fileContent}
       filePath={selectedFile}
@@ -65,7 +64,7 @@ function App() {
   );
 
   return (
-    <AppLayout
+    <Layout
       header={header}
       sider={sider}
       content={content}

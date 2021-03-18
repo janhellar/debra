@@ -1,8 +1,8 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { ipcMain, dialog } from 'electron';
-import { promises as fsPromises, existsSync, writeFileSync } from 'fs';
-import { spawn, ChildProcess, exec } from 'child_process';
+import { promises as fsPromises, existsSync } from 'fs';
+import { spawn, ChildProcess } from 'child_process';
 import { Project } from 'ts-morph';
 import npm from 'npm';
 import { platform } from 'os';
@@ -20,9 +20,6 @@ const nodePath = path.resolve(
 const PATH = process.env.PATH;
 process.env.PATH = `${nodePath}:${PATH}`;
 
-console.log(process.env.PATH);
-// writeFileSync('/tmp/test.txt', process.env.PATH);
-
 const runningCommands: ChildProcess[] = [];
 
 let win: BrowserWindow;
@@ -34,7 +31,8 @@ function createWindow() {
     webPreferences: {
       preload: path.resolve(__dirname, 'preload.js'),
     },
-    autoHideMenuBar: true
+    autoHideMenuBar: true,
+    icon: path.resolve(__dirname, 'icon.png')
   });
 
   win.loadFile(path.resolve(__dirname, '../renderer/index.html'));
@@ -73,14 +71,9 @@ ipcMain.handle('save-file', async (_, filePath, fileContent) => {
 ipcMain.handle('npm', (_, options) => {
   const { args, projectPath } = options;
 
-  // const npm = path.resolve(__dirname, '../../node_modules/.bin/npm');
-
   return new Promise<void>(resolve => {
     const command = spawn('npm', args.split(' '), {
       cwd: projectPath,
-      // detached: true,
-      // env: process.env,
-      // stdio: 'inherit'
       shell: true,
       windowsHide: true
     });
@@ -93,27 +86,15 @@ ipcMain.handle('npm', (_, options) => {
       resolve();
     });
 
-    // command.stdout.on('data', data => win.webContents.send(commandName, data));
-    // command.stderr.on('data', data => win.webContents.send(commandName, data));
-
     command.stdout.on('data', data => console.log(data.toString()));
     command.stderr.on('data', data => console.log(data.toString()));
   }).catch(console.log);
 });
 
 ipcMain.handle('kill', () => {
-  runningCommands.forEach((command, index) => {
-    console.log(index, command.pid);
+  runningCommands.forEach(command => {
     try {
       kill(command.pid, 'SIGKILL');
-      // if (platform() === 'win32') {
-      //   exec(`taskkill /pid ${command.pid} /T /F`);
-      // } else {
-      //   // process.kill(-command.pid, 'SIGKILL');
-      //   command.kill('SIGKILL');
-      // }
-      
-      // command.kill('SIGKILL')
     } catch (error) {
       console.log(error);
     }
@@ -171,7 +152,6 @@ ipcMain.handle('load-modules', async (_, projectPath: string) => {
   }
   
   await loadDir(`${projectPath}/node_modules`);
-  console.log('HOTOVO');
   return results;
 });
 
@@ -197,6 +177,5 @@ ipcMain.handle('load-source', async (_, projectPath: string) => {
   }
   
   await loadDir(`${projectPath}/src`);
-  console.log('HOTOVO');
   return results;
 });

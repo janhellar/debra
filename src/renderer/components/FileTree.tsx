@@ -1,13 +1,13 @@
 import React, { useCallback, useRef, ReactElement, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Tree, Popover, Menu, Dropdown } from 'antd';
+import { Tree, Menu, Dropdown } from 'antd';
 import { DataNode } from 'rc-tree/lib/interface';
 
-import './AppDirectoryTree.css';
+import './FileTree.css';
 
 const { DirectoryTree } = Tree;
 
-interface AppDirectoryTreeProps {
+interface FileTreeProps {
   directoryEntries: DataNode[];
   onFileSelected: (fileName: string) => void;
 }
@@ -61,7 +61,7 @@ function ContextDropdown(props: any) {
   );
 }
 
-function AppDirectoryTree(props: AppDirectoryTreeProps) {
+function FileTree(props: FileTreeProps) {
   const { directoryEntries, onFileSelected } = props;
 
   const contextMenuContainer = useRef<HTMLDivElement | null>();
@@ -102,7 +102,7 @@ function AppDirectoryTree(props: AppDirectoryTreeProps) {
   }, []);
 
   return (
-    <div className="AppDirectoryTree">
+    <div className="FileTree">
       <DirectoryTree
         treeData={directoryEntries}
         onSelect={selected => onFileSelected(selected[0].toString())}
@@ -113,4 +113,4 @@ function AppDirectoryTree(props: AppDirectoryTreeProps) {
   );
 }
 
-export default AppDirectoryTree;
+export default FileTree;

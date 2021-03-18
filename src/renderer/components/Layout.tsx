@@ -1,36 +1,36 @@
 import React, { ReactElement } from 'react';
-import { Layout } from 'antd';
+import { Layout as AntLayout } from 'antd';
 
-import './AppLayout.css';
+import './Layout.css';
 
-const { Header, Content, Sider } = Layout;
+const { Header, Content, Sider } = AntLayout;
 
-interface AppLayoutProps {
+interface LayoutProps {
   header: ReactElement;
   sider: ReactElement;
   content: ReactElement;
 }
 
-function AppLayout(props: AppLayoutProps) {
+function Layout(props: LayoutProps) {
   const { header, sider, content } = props;
 
   return (
-    <Layout className="AppLayout">
+    <AntLayout className="Layout">
       <Header>
         {header}
       </Header>
-      <Layout>
+      <AntLayout>
         <Sider width={300}>
           {sider}
         </Sider>
-        <Layout>
+        <AntLayout>
           <Content>
             {content}
           </Content>
-        </Layout>
-      </Layout>
-    </Layout>
+        </AntLayout>
+      </AntLayout>
+    </AntLayout>
   );
 }
 
-export default AppLayout;
+export default Layout;
