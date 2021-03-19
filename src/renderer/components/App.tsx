@@ -8,10 +8,11 @@ import Editor from './Editor';
 import { readDir } from '../utils';
 
 function App() {
-  const [projectPath, setProjectPath] = useState('/Users/jan.hellar/doma/debra-test');
+  const [projectPath, setProjectPath] = useState('/home/jan/Projekty/debra-test');
   const [directoryEntries, setDirectoryEntries] = useState<DataNode[]>([]);
   const [selectedFile, setSelectedFile] = useState<string>('');
   const [edited, setEdited] = useState<string[]>([]);
+  const [editorLoading, setEditorLoading] = useState(false);
 
   const refreshDirTree = useCallback(async (dirPath: string) => {
     setDirectoryEntries(await readDir(dirPath));
@@ -35,6 +36,7 @@ function App() {
   const header = (
     <Menu
       fileChanged={edited.length > 0}
+      editorLoading={editorLoading}
     />
   );
 
@@ -52,6 +54,7 @@ function App() {
       filePath={selectedFile}
       onSave={saveFile}
       onChange={file => !edited.includes(file) && setEdited(files => [...files, file])}
+      onEditorLoading={setEditorLoading}
     />
   );
 

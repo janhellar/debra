@@ -6,6 +6,7 @@ interface EditorProps {
   filePath: string;
   onSave: (path: string, content: string) => void;
   onChange: (path: string) => void;
+  onEditorLoading: (loading: boolean) => void;
 }
 
 const editorSaveActionId = 'debra-save';
@@ -16,7 +17,7 @@ function removePrefix(project: string, file: string) {
 }
 
 function Editor(props: EditorProps) {
-  const { projectPath, filePath, onSave, onChange } = props;
+  const { projectPath, filePath, onSave, onChange, onEditorLoading } = props;
 
   const monaco = useMonaco();
 
@@ -37,19 +38,19 @@ function Editor(props: EditorProps) {
     async function loadAll() {
       if (!monaco) return;
 
+      onEditorLoading(true);
+
       const source = await window.electron.loadSource(projectPath);
       for (const file of source) {
         monaco.editor.createModel(file.content, undefined, monaco.Uri.parse(`file://${file.path}`));
       }
-
-      console.log('source loaded');
 
       const files = await window.electron.loadModules(projectPath);
       for (const file of files) {
         monaco.languages.typescript.typescriptDefaults.addExtraLib(file.content, 'file://' + file.path);
       }
 
-      console.log('modules loaded');
+      onEditorLoading(false);
     }
 
     loadAll();
