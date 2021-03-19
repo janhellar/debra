@@ -48,6 +48,8 @@ function Editor(props: EditorProps) {
       const files = await window.electron.loadModules(projectPath);
       for (const file of files) {
         monaco.languages.typescript.typescriptDefaults.addExtraLib(file.content, 'file://' + file.path);
+        // TODO: use setExtraLibs instead of ^
+        // monaco.languages.typescript.typescriptDefaults.setExtraLibs(...)
       }
 
       onEditorLoading(false);
@@ -80,10 +82,7 @@ function Editor(props: EditorProps) {
     <MonacoEditor
       path={removePrefix(projectPath, filePath)}
       options={{
-        automaticLayout: true,
-        minimap: {
-          enabled: false
-        }
+        automaticLayout: true
       }}
       theme="vs-dark"
       onMount={addSaveAction}

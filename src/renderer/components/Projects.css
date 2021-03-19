@@ -1,0 +1,14 @@
+.Projects {
+  height: 100%;
+  padding: 20px;
+}
+
+.Projects .content {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.Projects .content .ant-card {
+  flex: 1 1 auto;
+  max-width: 200px;
+}
