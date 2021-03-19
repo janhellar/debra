@@ -37,15 +37,19 @@ function Editor(props: EditorProps) {
     async function loadAll() {
       if (!monaco) return;
 
+      const source = await window.electron.loadSource(projectPath);
+      for (const file of source) {
+        monaco.editor.createModel(file.content, undefined, monaco.Uri.parse(`file://${file.path}`));
+      }
+
+      console.log('source loaded');
+
       const files = await window.electron.loadModules(projectPath);
       for (const file of files) {
         monaco.languages.typescript.typescriptDefaults.addExtraLib(file.content, 'file://' + file.path);
       }
 
-      const source = await window.electron.loadSource(projectPath);
-      for (const file of source) {
-        monaco.editor.createModel(file.content, undefined, monaco.Uri.parse(`file://${file.path}`));
-      }
+      console.log('modules loaded');
     }
 
     loadAll();
