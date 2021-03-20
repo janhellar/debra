@@ -8,7 +8,7 @@ import npm from 'npm';
 import { platform } from 'os';
 import kill from 'tree-kill';
 
-const { readdir, readFile, writeFile } = fsPromises;
+const { readdir, readFile, writeFile, mkdir } = fsPromises;
 
 const appRootPath = path.resolve(__dirname, '../..');
 const resourcesPath = path.resolve(appRootPath, '..');
@@ -177,4 +177,21 @@ ipcMain.handle('load-source', async (_, projectPath: string) => {
   
   await loadDir(`${projectPath}/src`);
   return results;
+});
+
+ipcMain.handle('load-projects', async () => {
+  const debraDir = path.resolve(`${process.env.HOME}/.debra/projects`);
+
+  console.log(debraDir);
+
+  if (!existsSync(debraDir)) {
+    await mkdir(debraDir, { recursive: true })
+    return [];
+  }
+
+  const files = await readdir(debraDir, { withFileTypes: true });
+  return files.filter(file => file.isDirectory()).map(file => ({
+    path: path.resolve(debraDir, file.name),
+    name: file.name
+  }));
 });

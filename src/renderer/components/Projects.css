@@ -8,7 +8,30 @@
   flex-wrap: wrap;
 }
 
-.Projects .content .ant-card {
-  flex: 1 1 auto;
-  max-width: 200px;
+.Projects .content > button {
+  font-size: 16px;
+}
+
+.Projects .card {
+  flex: 1 0 200px;
+  box-sizing: border-box;
+  margin: 1rem .25em;
+  font-size: small;
+  height: 150px;
+}
+
+.Projects .card button:hover {
+  color: #a61d24;
+}
+
+@media screen and (min-width: 40em) {
+  .Projects .card {
+     max-width: calc(50% -  1em);
+  }
+}
+
+@media screen and (min-width: 60em) {
+  .Projects .card {
+      max-width: calc(25% - 1em);
+  }
 }

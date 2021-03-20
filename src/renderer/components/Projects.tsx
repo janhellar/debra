@@ -1,59 +1,46 @@
-import React from 'react';
-import { Card, Layout, Space } from 'antd';
-import { DeleteOutlined, EditOutlined, EllipsisOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { Card, Layout, Button } from 'antd';
+// import { DeleteOutlined } from '@ant-design/icons';
 
 import './Projects.css';
 
 const { Content } = Layout;
 
-function Projects() {
+interface ProjectsProps {
+  onProjectSelect: (projectPath: string) => void;
+}
+
+function Projects(props: ProjectsProps) {
+  const { onProjectSelect } = props;
+
+  const [projects, setProjects] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function load() {
+      setProjects(await window.electron.loadProjects());
+    }
+    
+    load();
+  }, []);
+
+  const card = (project: any) => (
+    <Card
+      key={project.name}
+      hoverable
+      title={project.name}
+      // extra={<Button icon={<DeleteOutlined key="setting" />} type="text" />}
+      className="card"
+      onClick={() => onProjectSelect(project.path)}
+    >
+      Created: 2021/03/18<br />
+      Last edited: 2021/03/19
+    </Card>
+  );
+
   const content = (
     <div className="content">
-      <Card
-        hoverable
-        size="small"
-        title="Small size card"
-        extra={<a href="#">More</a>}
-        actions={[
-          <DeleteOutlined key="setting" />,
-          <EditOutlined key="edit" />,
-          <EllipsisOutlined key="ellipsis" />,
-        ]}
-      >
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-      </Card>
-      <Card hoverable bordered={false} size="small" title="Small size card" extra={<a href="#">More</a>}>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-      </Card>
-      <Card bordered={false} size="small" title="Small size card" extra={<a href="#">More</a>}>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-      </Card>
-      <Card hoverable bordered={false} size="small" title="Small size card" extra={<a href="#">More</a>}>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-      </Card>
-      <Card bordered={false} size="small" title="Small size card" extra={<a href="#">More</a>}>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-      </Card>
-      <Card hoverable bordered={false} size="small" title="Small size card" extra={<a href="#">More</a>}>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-      </Card>
-      <Card bordered={false} size="small" title="Small size card" extra={<a href="#">More</a>}>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-      </Card>
+      <Button type="dashed" className="card">New Project</Button>
+      {projects.map(project => (card(project)))}
     </div>
   );
 

@@ -10,7 +10,7 @@ function App() {
     return <Project projectPath={projectPath} />
   }
 
-  return <Projects />;
+  return <Projects onProjectSelect={setProjectPath} />;
 }
 
 export default App;

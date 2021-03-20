@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld(
     npmInstall: (projectPath: string) => ipcRenderer.invoke('npm-install', projectPath),
     openDir: () => ipcRenderer.invoke('open-dir'),
     loadModules: (projectPath: string) => ipcRenderer.invoke('load-modules', projectPath),
-    loadSource: (projectPath: string) => ipcRenderer.invoke('load-source', projectPath)
+    loadSource: (projectPath: string) => ipcRenderer.invoke('load-source', projectPath),
+    loadProjects: () => ipcRenderer.invoke('load-projects')
   }
 );
