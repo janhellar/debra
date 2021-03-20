@@ -26,6 +26,8 @@ function Editor(props: EditorProps) {
   useEffect(() => {
     if (!monaco) return;
 
+    let canceled = false;
+
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       jsx: 2,
       forceConsistentCasingInFileNames: true,
@@ -52,10 +54,17 @@ function Editor(props: EditorProps) {
         // monaco.languages.typescript.typescriptDefaults.setExtraLibs(...)
       }
 
-      onEditorLoading(false);
+      !canceled && onEditorLoading(false);
     }
 
     loadAll();
+
+    return () => {
+      canceled = true;
+
+      monaco.editor.getModels().forEach(model => model.dispose());
+      monaco.languages.typescript.typescriptDefaults.setExtraLibs([]);
+    }
   }, [projectPath, monaco]);
 
   const addSaveAction: OnMount = editor => {
@@ -84,7 +93,7 @@ function Editor(props: EditorProps) {
       options={{
         automaticLayout: true
       }}
-      theme="vs-dark"
+      theme="dark-theme"
       onMount={addSaveAction}
       onChange={value => value && onChange(filePath)}
     />

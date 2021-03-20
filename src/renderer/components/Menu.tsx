@@ -1,18 +1,37 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { Dropdown, Menu as AntMenu, Button, Radio, Badge, Spin, Space } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 
 import './Menu.css';
 
+export type SelectedTab = 'files' | 'dependencies' | 'logs';
+
 interface MenuProps {
   fileChanged: boolean;
   editorLoading: boolean;
+  onProjectsClick: () => void;
+  tab: SelectedTab;
+  onTabSelected: (tab: SelectedTab) => void;
+  projectPath: string;
 }
 
 const loadIcon = <LoadingOutlined spin />;
 
 function Menu(props: MenuProps) {
-  const { fileChanged, editorLoading } = props;
+  const { fileChanged, editorLoading, onProjectsClick, tab, onTabSelected, projectPath } = props;
+  const [debugging, setDebugging] = useState(false);
+
+  const debug = useCallback(async () => {
+    setDebugging(true);
+    window.electron.compile(projectPath, 'main');
+    window.electron.compile(projectPath, 'renderer');
+    window.electron.compile(projectPath, 'electron');
+  }, [projectPath]);
+
+  const stopDebug = useCallback(async () => {
+    window.electron.kill();
+    setDebugging(false);
+  }, []);
 
   const rightMenu = (
     <AntMenu>
@@ -23,10 +42,10 @@ function Menu(props: MenuProps) {
 
   return (
     <div className="Menu">
-      <Button size="middle">Projects</Button>
+      <Button size="middle" onClick={onProjectsClick}>Projects</Button>
 
-      <Radio.Group defaultValue="b" buttonStyle="outline" style={{ verticalAlign: 20 }} size="middle">
-        <Radio.Button value="b">
+      <Radio.Group value={tab} onChange={e => onTabSelected(e.target.value)} buttonStyle="outline" style={{ verticalAlign: 20 }} size="middle">
+        <Radio.Button value="files">
           <Space>
             {editorLoading && <Spin indicator={loadIcon} size="small" />}
             <Badge style={{ backgroundColor: 'rgba(255, 255, 255, 0.85)' }} dot={fileChanged}>
@@ -34,8 +53,8 @@ function Menu(props: MenuProps) {
             </Badge>
           </Space>
         </Radio.Button>
-        <Radio.Button value="c">Dependencies</Radio.Button>
-        <Radio.Button value="d">Logs</Radio.Button>
+        <Radio.Button value="dependencies">Dependencies</Radio.Button>
+        <Radio.Button value="logs">Logs</Radio.Button>
       </Radio.Group>
 
       
@@ -43,8 +62,8 @@ function Menu(props: MenuProps) {
         overlay={rightMenu}
         trigger={['click']}
         size="middle"
-      >
-        Run
+        onClick={() => debugging ? stopDebug() : debug()}>
+          {debugging ? 'Stop' : 'Run'}
       </Dropdown.Button>
     </div>
   );

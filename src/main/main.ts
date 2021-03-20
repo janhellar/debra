@@ -72,7 +72,7 @@ ipcMain.handle('npm', (_, options) => {
   const { args, projectPath } = options;
 
   return new Promise<void>(resolve => {
-    const command = spawn('npm', args.split(' '), {
+    const command = spawn('npm', args, {
       cwd: projectPath,
       shell: true,
       windowsHide: true
@@ -106,7 +106,7 @@ ipcMain.handle('ts-build', async (_, tsConfigFilePath) => {
   await project.emit();
 });
 
-ipcMain.handle('npm-install', async (_, projectPath) => {
+ipcMain.handle('npm-install', async (_, projectPath, pkg) => {
   await new Promise<void>((resolve, reject) => {
     npm.load({}, error => {
       if (error) return reject(error);
@@ -118,8 +118,10 @@ ipcMain.handle('npm-install', async (_, projectPath) => {
 
   npm.prefix = projectPath;
 
+  const args = pkg ? ['--save', pkg] : [];
+
   await new Promise<void>((resolve, reject) => {
-    npm.commands.install([], (error, data) => {
+    npm.commands.install(args, (error, data) => {
       if (error) return reject(error);
       resolve(data);
     });
@@ -194,4 +196,31 @@ ipcMain.handle('load-projects', async () => {
     path: path.resolve(debraDir, file.name),
     name: file.name
   }));
+});
+
+ipcMain.handle('load-dependencies', async (_, projectPath: string) => {
+  const packageJson = await readFile(path.resolve(projectPath, 'package.json'), 'utf-8');
+  return JSON.parse(packageJson).dependencies;
+});
+
+ipcMain.handle('test', async () => {
+  setInterval(() => win.webContents.send('logs', 'zdar\n'), 2000);
+})
+
+ipcMain.handle('compile', (_, projectPath: string, component: string) => {
+  const command = spawn('npm', ['run', `start:${component}`], {
+    cwd: projectPath,
+    shell: true,
+    windowsHide: true
+  });
+
+  runningCommands.push(command);
+
+  command.on('close', () => {
+    const index = runningCommands.indexOf(command);
+    runningCommands.splice(index, 1);
+  });
+
+  command.stdout.on('data', data => win.webContents.send(`logs-${component}`, data.toString()));
+  command.stderr.on('data', data => win.webContents.send(`logs-${component}`, data.toString()));
 });

@@ -1,74 +1,87 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { DataNode } from 'rc-tree/lib/interface';
+import React, { ReactElement, useState } from 'react';
+import { Layout } from 'antd';
 
-import Layout from './Layout';
-import Menu from './Menu';
-import FileTree from './FileTree';
-import Editor from './Editor';
-import { readDir } from '../utils';
+import Menu, { SelectedTab } from './Menu';
+import Files from './Files';
+import Dependencies from './Dependencies';
+import Logs from './Logs';
+
+import './Project.css';
+
+const { Header } = Layout;
 
 interface ProjectProps {
   projectPath: string;
+  onOpenProjects: () => void;
 }
 
 function Project(props: ProjectProps) {
-  const { projectPath } = props;
-  
-  const [directoryEntries, setDirectoryEntries] = useState<DataNode[]>([]);
-  const [selectedFile, setSelectedFile] = useState<string>('');
+  const { projectPath, onOpenProjects } = props;
+
   const [edited, setEdited] = useState<string[]>([]);
   const [editorLoading, setEditorLoading] = useState(false);
-
-  const refreshDirTree = useCallback(async (dirPath: string) => {
-    setDirectoryEntries(await readDir(dirPath));
-  }, []);
-
-  useEffect(() => {
-    refreshDirTree(`${projectPath}/src`);
-  }, [projectPath]);
-
-  const saveFile = useCallback(async (path: string, content: string) => {
-    await window.electron.saveFile(path, content);
-    setEdited(files => {
-      const index = files.indexOf(path);
-      return [
-        ...files.slice(0, index),
-        ...files.slice(index + 1)
-      ];
-    });
-  }, []);
+  const [tab, setTab] = useState<SelectedTab>('files');
+  const [installing, setInstalling] = useState(false);
 
   const header = (
     <Menu
       fileChanged={edited.length > 0}
       editorLoading={editorLoading}
-    />
-  );
-
-  const sider = (
-    <FileTree
-      directoryEntries={directoryEntries}
-      editedFiles={edited}
-      onFileSelected={setSelectedFile}
-    />
-  );
-
-  const content = (
-    <Editor
+      onProjectsClick={onOpenProjects}
+      tab={tab}
+      onTabSelected={setTab}
       projectPath={projectPath}
-      filePath={selectedFile}
-      onSave={saveFile}
-      onChange={file => !edited.includes(file) && setEdited(files => [...files, file])}
-      onEditorLoading={setEditorLoading}
     />
   );
+
+  const files = (
+    <Files
+      projectPath={projectPath}
+      onEditorLoading={setEditorLoading}
+      edited={edited}
+      onEdited={setEdited}
+    />
+  );
+
+  const dependencies = (
+    <Dependencies
+      projectPath={projectPath}
+      onInstall={setInstalling}
+      installing={installing}
+    />
+  );
+
+  const logs = (
+    <Logs
+      projectPath={projectPath}
+    />
+  );
+
+  let content: ReactElement;
+
+  switch (tab) {
+    case 'files':
+      content = files;
+      break;
+    case 'dependencies':
+      content = dependencies;
+      break;
+    case 'logs':
+      content = logs;
+      break;
+    default:
+      content = files;
+  }
 
   return (
-    <Layout
-      header={header}
-      sider={sider}
-      content={content}
-    />
+    <Layout className="Project">
+      <Header>
+        {header}
+      </Header>
+      <Layout>
+        {content}
+      </Layout>
+    </Layout>
   );
 }
 

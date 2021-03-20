@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Layout, Button } from 'antd';
 // import { DeleteOutlined } from '@ant-design/icons';
+import { useMonaco } from '@monaco-editor/react'
 
 import './Projects.css';
 
@@ -14,6 +15,22 @@ function Projects(props: ProjectsProps) {
   const { onProjectSelect } = props;
 
   const [projects, setProjects] = useState<string[]>([]);
+
+  const monaco = useMonaco();
+  
+  useEffect(() => {
+    if (!monaco) return;
+
+    monaco.editor.defineTheme('dark-theme', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [],
+      colors: {
+        'editor.background': '#000000',//'#1f1f1f',
+        'minimap.background': '#000000'
+      },
+    });
+  }, [monaco]);
 
   useEffect(() => {
     async function load() {
