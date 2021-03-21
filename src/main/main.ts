@@ -8,7 +8,7 @@ import npm from 'npm';
 import { platform } from 'os';
 import kill from 'tree-kill';
 
-const { readdir, readFile, writeFile, mkdir } = fsPromises;
+const { readdir, readFile, writeFile, mkdir, rename } = fsPromises;
 
 const appRootPath = path.resolve(__dirname, '../..');
 const resourcesPath = path.resolve(appRootPath, '..');
@@ -223,4 +223,9 @@ ipcMain.handle('compile', (_, projectPath: string, component: string) => {
 
   command.stdout.on('data', data => win.webContents.send(`logs-${component}`, data.toString()));
   command.stderr.on('data', data => win.webContents.send(`logs-${component}`, data.toString()));
+});
+
+ipcMain.handle('rename', async (_, filePath: string, newName: string) => {
+  console.log(newName);
+  await rename(filePath, path.resolve(path.dirname(filePath), newName));
 });

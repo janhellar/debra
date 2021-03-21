@@ -45,6 +45,7 @@ function Files(props: FilesProps) {
       directoryEntries={directoryEntries}
       editedFiles={edited}
       onFileSelected={setSelectedFile}
+      onFileChange={() => refreshDirTree(`${projectPath}/src`)}
     />
   );
 

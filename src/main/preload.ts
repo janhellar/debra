@@ -18,7 +18,8 @@ contextBridge.exposeInMainWorld(
     logs: (component: string, func: (log: string) => void) => {
       ipcRenderer.on(`logs-${component}`, (_, log: string) => func(log))
     },
-    compile: (projectPath: string, component: string) => ipcRenderer.invoke('compile', projectPath, component)
+    compile: (projectPath: string, component: string) => ipcRenderer.invoke('compile', projectPath, component),
+    rename: (filePath: string, newName: string) => ipcRenderer.invoke('rename', filePath, newName)
   }
 );
 
