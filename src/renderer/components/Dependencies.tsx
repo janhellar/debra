@@ -7,13 +7,13 @@ import './Dependencies.css';
 const { Content } = Layout;
 
 interface DependenciesProps {
-  projectPath: string;
-  installing: boolean;
-  onInstall: (installing: boolean) => void;
+  // projectPath: string;
+  // installing: boolean;
+  // onInstall: (installing: boolean) => void;
 }
 
 function Dependencies(props: DependenciesProps) {
-  const { projectPath, installing, onInstall } = props;
+  // const { projectPath, installing, onInstall } = props;
 
   const [packages, setPackages] = useState<any[]>([]);
   const [installName, setInstallName] = useState('');

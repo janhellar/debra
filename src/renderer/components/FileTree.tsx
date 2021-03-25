@@ -1,18 +1,20 @@
-import React, { useCallback, useRef, ReactElement, useEffect, useState, KeyboardEvent } from 'react';
+import React, { useCallback, useRef, ReactElement, useEffect, useState, KeyboardEvent, useContext } from 'react';
 import ReactDOM from 'react-dom';
 import { Tree, Menu, Dropdown, Input } from 'antd';
 import { DataNode } from 'rc-tree/lib/interface';
+
+import { ProjectStateContext, ProjectDispatchContext } from '../contexts';
 
 import './FileTree.css';
 
 const { DirectoryTree } = Tree;
 
 interface FileTreeProps {
-  directoryEntries: DataNode[];
-  editedFiles: string[];
-  onFileSelected: (fileName: string) => void;
-  onFileChange: () => void;
-  projectPath: string;
+  // directoryEntries: DataNode[];
+  // editedFiles: string[];
+  // onFileSelected: (fileName: string) => void;
+  // onFileChange: () => void;
+  // projectPath: string;
 }
 
 function highlightEditedFiles(entries: DataNode[], edited: string[]): DataNode[] {
@@ -36,7 +38,14 @@ function highlightEditedFiles(entries: DataNode[], edited: string[]): DataNode[]
 }
 
 function FileTree(props: FileTreeProps) {
-  const { directoryEntries, editedFiles, onFileSelected, onFileChange, projectPath } = props;
+  // const { directoryEntries, editedFiles, onFileSelected, onFileChange, projectPath } = props;
+
+  const projectState = useContext(ProjectStateContext);
+
+  const { common } = projectState;
+  const { projectPath } = common;
+
+  const projectDispatch = useContext(ProjectDispatchContext);
 
   const [renaming, setRenaming] = useState<string | null>();
   const [newName, setNewName] = useState('');

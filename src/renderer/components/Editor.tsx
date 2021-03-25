@@ -2,11 +2,11 @@ import React, { useEffect, useRef } from 'react';
 import MonacoEditor, { OnMount, useMonaco } from "@monaco-editor/react";
 
 interface EditorProps {
-  projectPath: string;
-  filePath: string;
+  // projectPath: string;
+  // filePath: string;
   onSave: (path: string, content: string) => void;
-  onChange: (path: string) => void;
-  onEditorLoading: (loading: boolean) => void;
+  // onChange: (path: string) => void;
+  // onEditorLoading: (loading: boolean) => void;
 }
 
 const editorSaveActionId = 'debra-save';

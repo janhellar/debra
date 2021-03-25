@@ -7,7 +7,7 @@ const { Content } = Layout;
 const { TabPane } = Tabs;
 
 interface LogsProps {
-  projectPath: string;
+  // projectPath: string;
 }
 
 function Logs(props: LogsProps) {
