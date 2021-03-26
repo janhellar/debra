@@ -1,5 +1,7 @@
-import React, { useCallback, useEffect, useState, Dispatch, SetStateAction } from 'react';
+import React, { useCallback, useEffect, useContext, Dispatch, SetStateAction } from 'react';
 import { Layout, Tabs } from 'antd';
+
+import { ProjectStateContext, ProjectDispatchContext } from '../contexts';
 
 import './Logs.css';
 
@@ -11,18 +13,25 @@ interface LogsProps {
 }
 
 function Logs(props: LogsProps) {
-  const [mainLogs, setMainLogs] = useState('');
-  const [rendererLogs, setRendererLogs] = useState('');
-  const [electronLogs, setElectronLogs] = useState('');
+  // const [mainLogs, setMainLogs] = useState('');
+  // const [rendererLogs, setRendererLogs] = useState('');
+  // const [electronLogs, setElectronLogs] = useState('');
+
+  const projectState = useContext(ProjectStateContext);
+
+  const { logs } = projectState;
+  const { main, electron, renderer } = logs;
+
+  const dispatch = useContext(ProjectDispatchContext);
 
   const watchLogs = useCallback((source: string, setFunc: Dispatch<SetStateAction<string>>) => {
     window.electron.logs(source, (log: string) => setFunc(prev => prev + log));
   }, []);
 
   useEffect(() => {
-    watchLogs('main', setMainLogs);
-    watchLogs('renderer', setRendererLogs);
-    watchLogs('electron', setElectronLogs);
+    watchLogs('main', (setFn) => dispatch(['logs.main', setFn]));//setMainLogs);
+    watchLogs('renderer', (setFn) => dispatch(['logs.renderer', setFn]));//setRendererLogs);
+    watchLogs('electron', (setFn) => dispatch(['logs.electron', setFn]));//setElectronLogs);
   }, []);
 
   const pre = (text: string) => (
@@ -36,13 +45,13 @@ function Logs(props: LogsProps) {
   const content = (
     <Tabs defaultActiveKey="1">
       <TabPane tab="Main" key="1">
-        {pre(mainLogs)}
+        {pre(main)}
       </TabPane>
       <TabPane tab="Renderer" key="2">
-        {pre(rendererLogs)}
+        {pre(renderer)}
       </TabPane>
       <TabPane tab="Electron" key="3">
-        {pre(electronLogs)}
+        {pre(electron)}
       </TabPane>
     </Tabs>
   );

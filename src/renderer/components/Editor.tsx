@@ -1,5 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useContext, useCallback } from 'react';
 import MonacoEditor, { OnMount, useMonaco } from "@monaco-editor/react";
+
+import { ProjectStateContext, ProjectDispatchContext } from '../contexts';
 
 interface EditorProps {
   // projectPath: string;
@@ -17,55 +19,18 @@ function removePrefix(project: string, file: string) {
 }
 
 function Editor(props: EditorProps) {
-  const { projectPath, filePath, onSave, onChange, onEditorLoading } = props;
+  // const { projectPath, filePath, onSave, onChange, onEditorLoading } = props;
+  const { onSave } = props;
 
-  const monaco = useMonaco();
+  const projectState = useContext(ProjectStateContext);
+
+  const { common, editor } = projectState;
+  const { projectPath } = common;
+  const { activeFile, changedFiles } = editor;
+
+  const dispatch = useContext(ProjectDispatchContext);
 
   const editorRef = useRef<any>(null);
-  
-  useEffect(() => {
-    if (!monaco) return;
-
-    let canceled = false;
-
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-      jsx: 2,
-      forceConsistentCasingInFileNames: true,
-      skipLibCheck: true,
-      esModuleInterop: true,
-      strict: true,
-      module: 1
-    });
-
-    async function loadAll() {
-      if (!monaco) return;
-
-      onEditorLoading(true);
-
-      const source = await window.electron.loadSource(projectPath);
-      for (const file of source) {
-        monaco.editor.createModel(file.content, undefined, monaco.Uri.parse(`file://${file.path}`));
-      }
-
-      const files = await window.electron.loadModules(projectPath);
-      for (const file of files) {
-        monaco.languages.typescript.typescriptDefaults.addExtraLib(file.content, 'file://' + file.path);
-        // TODO: use setExtraLibs instead of ^
-        // monaco.languages.typescript.typescriptDefaults.setExtraLibs(...)
-      }
-
-      !canceled && onEditorLoading(false);
-    }
-
-    loadAll();
-
-    return () => {
-      canceled = true;
-
-      monaco.editor.getModels().forEach(model => model.dispose());
-      monaco.languages.typescript.typescriptDefaults.setExtraLibs([]);
-    }
-  }, [projectPath, monaco]);
 
   const addSaveAction: OnMount = editor => {
     if (editorRef) {
@@ -87,15 +52,27 @@ function Editor(props: EditorProps) {
     });
   };
 
+  const handleChange = useCallback(() => {
+
+    if (activeFile && !changedFiles.includes(activeFile)) {
+      dispatch([
+        'editor.changedFiles',
+        (files: string[]) => {
+          return [...files, activeFile];
+        }
+      ]); //onEdited(files => [...files, file])
+    }
+  }, [activeFile, changedFiles]);
+
   return (
     <MonacoEditor
-      path={removePrefix(projectPath, filePath)}
+      path={activeFile && removePrefix(projectPath, activeFile)}
       options={{
         automaticLayout: true
       }}
       theme="dark-theme"
       onMount={addSaveAction}
-      onChange={value => value && onChange(filePath)}
+      onChange={value => value && handleChange()}//onChange(activeFile)}
     />
   );
 }

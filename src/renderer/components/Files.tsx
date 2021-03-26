@@ -6,6 +6,7 @@ import FileTree from './FileTree';
 import Editor from './Editor';
 import { readDir } from '../utils';
 import { ProjectStateContext, ProjectDispatchContext } from '../contexts';
+import { Path } from '../types';
 
 const { Content, Sider } = Layout;
 
@@ -27,16 +28,17 @@ function Files(props: FilesProps) {
   const { common } = projectState;
   const { projectPath } = common;
 
-  const projectDispatch = useContext(ProjectDispatchContext);
+  const dispatch = useContext(ProjectDispatchContext);
 
   const refreshDirTree = useCallback(async (dirPath: string) => {
     const fileTreeData = await readDir(dirPath);
 
-    projectDispatch({
-      section: 'editor',
-      field: 'fileTreeData',
-      newValue: fileTreeData
-    });
+    dispatch(['editor.fileTreeData', fileTreeData]);
+    // {
+    //   section: 'editor',
+    //   field: 'fileTreeData',
+    //   newValue: fileTreeData
+    // });
   }, []);
 
   useEffect(() => {
@@ -46,17 +48,15 @@ function Files(props: FilesProps) {
   const saveFile = useCallback(async (path: string, content: string) => {
     await window.electron.saveFile(path, content);
 
-    projectDispatch({
-      section: 'editor',
-      field: 'changedFiles',
-      newValue: (prevValue: string) => {
+    dispatch(['editor.changedFiles',
+      (prevValue: string[]) => {
         const index = prevValue.indexOf(path);
         return [
           ...prevValue.slice(0, index),
           ...prevValue.slice(index + 1)
         ];
       }
-    });
+    ]);
 
     // onEdited(files => {
     //   const index = files.indexOf(path);
@@ -72,7 +72,7 @@ function Files(props: FilesProps) {
       // directoryEntries={directoryEntries}
       // editedFiles={edited}
       // onFileSelected={setSelectedFile}
-      // onFileChange={() => refreshDirTree(`${projectPath}/src`)}
+      onFileChange={() => refreshDirTree(`${projectPath}/src`)}
       // projectPath={projectPath}
     />
   );

@@ -4,6 +4,7 @@ import { Tree, Menu, Dropdown, Input } from 'antd';
 import { DataNode } from 'rc-tree/lib/interface';
 
 import { ProjectStateContext, ProjectDispatchContext } from '../contexts';
+import { Path } from '../types';
 
 import './FileTree.css';
 
@@ -13,7 +14,7 @@ interface FileTreeProps {
   // directoryEntries: DataNode[];
   // editedFiles: string[];
   // onFileSelected: (fileName: string) => void;
-  // onFileChange: () => void;
+  onFileChange: () => void;
   // projectPath: string;
 }
 
@@ -39,13 +40,15 @@ function highlightEditedFiles(entries: DataNode[], edited: string[]): DataNode[]
 
 function FileTree(props: FileTreeProps) {
   // const { directoryEntries, editedFiles, onFileSelected, onFileChange, projectPath } = props;
+  const { onFileChange } = props;
 
   const projectState = useContext(ProjectStateContext);
 
-  const { common } = projectState;
+  const { common, editor } = projectState;
   const { projectPath } = common;
+  const { changedFiles, fileTreeData } = editor;
 
-  const projectDispatch = useContext(ProjectDispatchContext);
+  const dispatch = useContext(ProjectDispatchContext);
 
   const [renaming, setRenaming] = useState<string | null>();
   const [newName, setNewName] = useState('');
@@ -129,7 +132,7 @@ function FileTree(props: FileTreeProps) {
     ReactDOM.render(contextMenu.current, contextMenuContainer.current);
   }, []);
 
-  const entries = highlightEditedFiles(directoryEntries, editedFiles);
+  const entries = highlightEditedFiles(fileTreeData, changedFiles);
 
   const handleRenaming = useCallback(async (e: KeyboardEvent<HTMLInputElement>, filePath: string) => {
     if (e.key === 'Enter') {
@@ -141,11 +144,19 @@ function FileTree(props: FileTreeProps) {
     }
   }, [setRenaming, newName]);
 
+  // const handleFileSelected = useCallback((file: Path) => {
+  //   dispatch({
+  //     section: 'editor',
+  //     field: 'activeFile',
+  //     newValue: file
+  //   });
+  // }, []);
+
   return (
     <div className="FileTree">
       <DirectoryTree
         treeData={entries}
-        onSelect={selected => onFileSelected(selected[0].toString())}
+        onSelect={selected => dispatch(['editor.activeFile', selected[0].toString()])}
         onRightClick={renderContextMenu}
         titleRender={node => {
           if (renaming && node.key === renaming) {

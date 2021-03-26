@@ -27,16 +27,17 @@ function Menu(props: MenuProps) {
   const { projectPath } = common;
   const { selectedTab, running } = menu;
 
-  const projectDispatch = useContext(ProjectDispatchContext);
+  const dispatch = useContext(ProjectDispatchContext);
 
-  const setDebugging = useCallback((running: boolean) => projectDispatch({
-    section: 'menu',
-    field: 'running',
-    newValue: running
-  }), [projectDispatch]);
+  // const setDebugging = useCallback((running: boolean) => dispatch({
+  //   section: 'menu',
+  //   field: 'running',
+  //   newValue: running
+  // }), [dispatch]);
 
   const debug = useCallback(async () => {
-    setDebugging(true);
+    dispatch(['menu.running', true]);
+    // dispatch(['set', 'menu', '', true]); // setDebugging(true);
     window.electron.compile(projectPath, 'main');
     window.electron.compile(projectPath, 'renderer');
     window.electron.compile(projectPath, 'electron');
@@ -44,14 +45,15 @@ function Menu(props: MenuProps) {
 
   const stopDebug = useCallback(async () => {
     window.electron.kill();
-    setDebugging(false);
+    dispatch(['menu.running', false])
+    // setDebugging(false);
   }, []);
 
-  const handleTabSelected = useCallback((value: string) => projectDispatch({
-    section: 'menu',
-    field: 'selectedTab',
-    newValue: value
-  }), [projectDispatch]);
+  // const handleTabSelected = useCallback((value: string) => dispatch({
+  //   section: 'menu',
+  //   field: 'selectedTab',
+  //   newValue: value
+  // }), [dispatch]);
 
   const rightMenu = (
     <AntMenu>
@@ -64,7 +66,7 @@ function Menu(props: MenuProps) {
     <div className="Menu">
       <Button size="middle" onClick={onProjectsClick}>Projects</Button>
 
-      <Radio.Group value={selectedTab} onChange={e => handleTabSelected(e.target.value)} buttonStyle="outline" style={{ verticalAlign: 20 }} size="middle">
+      <Radio.Group value={selectedTab} onChange={e => dispatch(['menu.selectedTab', e.target.value])} buttonStyle="outline" style={{ verticalAlign: 20 }} size="middle">
         <Radio.Button value="files">
           <Space>
             {editor.loading && <Spin indicator={loadIcon} size="small" />}

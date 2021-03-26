@@ -1,6 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { Layout, Table, Form, Input, Button, Space } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
+
+import { ProjectStateContext, ProjectDispatchContext } from '../contexts';
 
 import './Dependencies.css';
 
@@ -14,6 +16,14 @@ interface DependenciesProps {
 
 function Dependencies(props: DependenciesProps) {
   // const { projectPath, installing, onInstall } = props;
+
+  const projectState = useContext(ProjectStateContext);
+
+  const { common, dependencies } = projectState;
+  const { projectPath } = common;
+  const { installing } = dependencies;
+
+  const dispatch = useContext(ProjectDispatchContext);
 
   const [packages, setPackages] = useState<any[]>([]);
   const [installName, setInstallName] = useState('');
@@ -35,13 +45,13 @@ function Dependencies(props: DependenciesProps) {
   }, [projectPath]);
 
   const npm = useCallback(async (pkg: string, action = 'install') => {
-    onInstall(true);
+    dispatch(['dependencies.installing', true]);//onInstall(true);
     await window.electron.npm({
       args: [action, '--save', pkg],
       projectPath
     })
     await loadPackages();
-    onInstall(false);
+    dispatch(['dependencies.installing', false]);
   }, [projectPath]);
 
   const columns = [
