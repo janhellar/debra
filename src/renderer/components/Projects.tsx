@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Layout, Button } from 'antd';
-// import { DeleteOutlined } from '@ant-design/icons';
 import { useMonaco } from '@monaco-editor/react'
 
 import './Projects.css';
@@ -26,7 +25,7 @@ function Projects(props: ProjectsProps) {
       inherit: true,
       rules: [],
       colors: {
-        'editor.background': '#000000',//'#1f1f1f',
+        'editor.background': '#000000',
         'minimap.background': '#000000'
       },
     });
@@ -45,7 +44,6 @@ function Projects(props: ProjectsProps) {
       key={project.name}
       hoverable
       title={project.name}
-      // extra={<Button icon={<DeleteOutlined key="setting" />} type="text" />}
       className="card"
       onClick={() => onProjectSelect(project.path)}
     >

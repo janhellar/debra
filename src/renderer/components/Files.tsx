@@ -1,28 +1,14 @@
 import React, { useCallback, useEffect, useContext } from 'react';
-import { DataNode } from 'rc-tree/lib/interface';
 import { Layout } from 'antd';
 
 import FileTree from './FileTree';
 import Editor from './Editor';
 import { readDir } from '../utils';
 import { ProjectStateContext, ProjectDispatchContext } from '../contexts';
-import { Path } from '../types';
 
 const { Content, Sider } = Layout;
 
-interface FilesProps {
-  // projectPath: string;
-  // onEditorLoading: (loading: boolean) => void;
-  // onEdited: (set: (files: string[]) => string[]) => void;
-  // edited: string[];
-}
-
-function Files(props: FilesProps) {
-  // const { projectPath, onEditorLoading, onEdited, edited } = props;
-  
-  // const [directoryEntries, setDirectoryEntries] = useState<DataNode[]>([]);
-  // const [selectedFile, setSelectedFile] = useState<string>('');
-
+function Files() {
   const projectState = useContext(ProjectStateContext);
 
   const { common } = projectState;
@@ -34,11 +20,6 @@ function Files(props: FilesProps) {
     const fileTreeData = await readDir(dirPath);
 
     dispatch(['editor.fileTreeData', fileTreeData]);
-    // {
-    //   section: 'editor',
-    //   field: 'fileTreeData',
-    //   newValue: fileTreeData
-    // });
   }, []);
 
   useEffect(() => {
@@ -57,33 +38,17 @@ function Files(props: FilesProps) {
         ];
       }
     ]);
-
-    // onEdited(files => {
-    //   const index = files.indexOf(path);
-    //   return [
-    //     ...files.slice(0, index),
-    //     ...files.slice(index + 1)
-    //   ];
-    // });
   }, []);
 
   const sider = (
     <FileTree
-      // directoryEntries={directoryEntries}
-      // editedFiles={edited}
-      // onFileSelected={setSelectedFile}
       onFileChange={() => refreshDirTree(`${projectPath}/src`)}
-      // projectPath={projectPath}
     />
   );
 
   const content = (
     <Editor
-      // projectPath={projectPath}
-      // filePath={selectedFile}
       onSave={saveFile}
-      // onChange={file => !edited.includes(file) && onEdited(files => [...files, file])}
-      // onEditorLoading={onEditorLoading}
     />
   );
 

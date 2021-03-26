@@ -17,8 +17,3 @@
 .Menu > .ant-radio-group {
   display: flex;
 }
-
-/* .Menu .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
-  color: white;
-  border-color: white;
-} */

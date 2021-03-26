@@ -8,15 +8,7 @@ import './Logs.css';
 const { Content } = Layout;
 const { TabPane } = Tabs;
 
-interface LogsProps {
-  // projectPath: string;
-}
-
-function Logs(props: LogsProps) {
-  // const [mainLogs, setMainLogs] = useState('');
-  // const [rendererLogs, setRendererLogs] = useState('');
-  // const [electronLogs, setElectronLogs] = useState('');
-
+function Logs() {
   const projectState = useContext(ProjectStateContext);
 
   const { logs } = projectState;
@@ -29,9 +21,9 @@ function Logs(props: LogsProps) {
   }, []);
 
   useEffect(() => {
-    watchLogs('main', (setFn) => dispatch(['logs.main', setFn]));//setMainLogs);
-    watchLogs('renderer', (setFn) => dispatch(['logs.renderer', setFn]));//setRendererLogs);
-    watchLogs('electron', (setFn) => dispatch(['logs.electron', setFn]));//setElectronLogs);
+    watchLogs('main', (setFn) => dispatch(['logs.main', setFn]));
+    watchLogs('renderer', (setFn) => dispatch(['logs.renderer', setFn]));
+    watchLogs('electron', (setFn) => dispatch(['logs.electron', setFn]));
   }, []);
 
   const pre = (text: string) => (

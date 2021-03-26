@@ -1,13 +1,12 @@
 import React, { ReactElement, useReducer, useEffect } from 'react';
 import { Layout } from 'antd';
-import MonacoEditor, { OnMount, useMonaco } from "@monaco-editor/react";
+import { useMonaco } from "@monaco-editor/react";
 
 import Menu from './Menu';
 import Files from './Files';
 import Dependencies from './Dependencies';
 import Logs from './Logs';
 import {
-  // ProjectReducer,
   ProjectStateContext,
   ProjectDispatchContext,
   projectReducer,
@@ -48,19 +47,25 @@ function Project(props: ProjectProps) {
       if (!monaco) return;
 
       dispatch(['editor.loading', true]);
-      // onEditorLoading(true);
 
       const source = await window.electron.loadSource(projectPath);
       for (const file of source) {
         monaco.editor.createModel(file.content, undefined, monaco.Uri.parse(`file://${file.path}`));
       }
 
-      const files = await window.electron.loadModules(projectPath);
-      for (const file of files) {
-        monaco.languages.typescript.typescriptDefaults.addExtraLib(file.content, 'file://' + file.path);
-        // TODO: use setExtraLibs instead of ^
-        // monaco.languages.typescript.typescriptDefaults.setExtraLibs(...)
-      }
+      const files = (await window.electron.loadModules(projectPath)).map((file: {
+        content: string;
+        path: string;
+      }) => ({
+        content: file.content,
+        filePath: `file://${file.path}`
+      }));
+      monaco.languages.typescript.typescriptDefaults.setExtraLibs(files);
+      // for (const file of files) {
+      //   monaco.languages.typescript.typescriptDefaults.addExtraLib(file.content, 'file://' + file.path);
+      //   // TODO: use setExtraLibs instead of ^
+        
+      // }
 
       !canceled && dispatch(['editor.loading', false]);
     }
@@ -75,42 +80,24 @@ function Project(props: ProjectProps) {
     }
   }, [projectPath, monaco]);
 
-  // const [edited, setEdited] = useState<string[]>([]);
-  // const [editorLoading, setEditorLoading] = useState(false);
-  // const [tab, setTab] = useState<SelectedTab>('files');
-  // const [installing, setInstalling] = useState(false);
-
   const menu = (
     <Menu
-      // fileChanged={edited.length > 0}
-      // editorLoading={editorLoading}
       onProjectsClick={onOpenProjects}
-      // tab={tab}
-      // onTabSelected={setTab}
-      // projectPath={projectPath}
     />
   );
 
   const files = (
     <Files
-      // projectPath={projectPath}
-      // onEditorLoading={setEditorLoading}
-      // edited={edited}
-      // onEdited={setEdited}
     />
   );
 
   const dependencies = (
     <Dependencies
-      // projectPath={projectPath}
-      // onInstall={setInstalling}
-      // installing={installing}
     />
   );
 
   const logs = (
     <Logs
-      // projectPath={projectPath}
     />
   );
 

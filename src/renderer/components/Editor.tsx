@@ -1,14 +1,10 @@
-import React, { useEffect, useRef, useContext, useCallback } from 'react';
-import MonacoEditor, { OnMount, useMonaco } from "@monaco-editor/react";
+import React, { useRef, useContext, useCallback } from 'react';
+import MonacoEditor, { OnMount } from "@monaco-editor/react";
 
 import { ProjectStateContext, ProjectDispatchContext } from '../contexts';
 
 interface EditorProps {
-  // projectPath: string;
-  // filePath: string;
   onSave: (path: string, content: string) => void;
-  // onChange: (path: string) => void;
-  // onEditorLoading: (loading: boolean) => void;
 }
 
 const editorSaveActionId = 'debra-save';
@@ -19,7 +15,6 @@ function removePrefix(project: string, file: string) {
 }
 
 function Editor(props: EditorProps) {
-  // const { projectPath, filePath, onSave, onChange, onEditorLoading } = props;
   const { onSave } = props;
 
   const projectState = useContext(ProjectStateContext);
@@ -60,7 +55,7 @@ function Editor(props: EditorProps) {
         (files: string[]) => {
           return [...files, activeFile];
         }
-      ]); //onEdited(files => [...files, file])
+      ]);
     }
   }, [activeFile, changedFiles]);
 
@@ -72,7 +67,7 @@ function Editor(props: EditorProps) {
       }}
       theme="dark-theme"
       onMount={addSaveAction}
-      onChange={value => value && handleChange()}//onChange(activeFile)}
+      onChange={value => value && handleChange()}
     />
   );
 }

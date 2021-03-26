@@ -4,18 +4,13 @@ import { Tree, Menu, Dropdown, Input } from 'antd';
 import { DataNode } from 'rc-tree/lib/interface';
 
 import { ProjectStateContext, ProjectDispatchContext } from '../contexts';
-import { Path } from '../types';
 
 import './FileTree.css';
 
 const { DirectoryTree } = Tree;
 
 interface FileTreeProps {
-  // directoryEntries: DataNode[];
-  // editedFiles: string[];
-  // onFileSelected: (fileName: string) => void;
   onFileChange: () => void;
-  // projectPath: string;
 }
 
 function highlightEditedFiles(entries: DataNode[], edited: string[]): DataNode[] {
@@ -39,7 +34,6 @@ function highlightEditedFiles(entries: DataNode[], edited: string[]): DataNode[]
 }
 
 function FileTree(props: FileTreeProps) {
-  // const { directoryEntries, editedFiles, onFileSelected, onFileChange, projectPath } = props;
   const { onFileChange } = props;
 
   const projectState = useContext(ProjectStateContext);
@@ -143,14 +137,6 @@ function FileTree(props: FileTreeProps) {
       setRenaming(null);
     }
   }, [setRenaming, newName]);
-
-  // const handleFileSelected = useCallback((file: Path) => {
-  //   dispatch({
-  //     section: 'editor',
-  //     field: 'activeFile',
-  //     newValue: file
-  //   });
-  // }, []);
 
   return (
     <div className="FileTree">

@@ -8,15 +8,7 @@ import './Dependencies.css';
 
 const { Content } = Layout;
 
-interface DependenciesProps {
-  // projectPath: string;
-  // installing: boolean;
-  // onInstall: (installing: boolean) => void;
-}
-
-function Dependencies(props: DependenciesProps) {
-  // const { projectPath, installing, onInstall } = props;
-
+function Dependencies() {
   const projectState = useContext(ProjectStateContext);
 
   const { common, dependencies } = projectState;
@@ -45,7 +37,7 @@ function Dependencies(props: DependenciesProps) {
   }, [projectPath]);
 
   const npm = useCallback(async (pkg: string, action = 'install') => {
-    dispatch(['dependencies.installing', true]);//onInstall(true);
+    dispatch(['dependencies.installing', true]);
     await window.electron.npm({
       args: [action, '--save', pkg],
       projectPath

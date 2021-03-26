@@ -7,19 +7,11 @@ import { ProjectStateContext, ProjectDispatchContext } from '../contexts';
 import './Menu.css';
 
 interface MenuProps {
-  // fileChanged: boolean;
-  // editorLoading: boolean;
   onProjectsClick: () => void;
-  // tab: SelectedTab;
-  // onTabSelected: (tab: SelectedTab) => void;
-  // projectPath: string;
 }
-
-const loadIcon = <LoadingOutlined spin />;
 
 function Menu(props: MenuProps) {
   const { onProjectsClick } = props;
-  // const [debugging, setDebugging] = useState(false);
 
   const projectState = useContext(ProjectStateContext);
   
@@ -29,15 +21,8 @@ function Menu(props: MenuProps) {
 
   const dispatch = useContext(ProjectDispatchContext);
 
-  // const setDebugging = useCallback((running: boolean) => dispatch({
-  //   section: 'menu',
-  //   field: 'running',
-  //   newValue: running
-  // }), [dispatch]);
-
   const debug = useCallback(async () => {
     dispatch(['menu.running', true]);
-    // dispatch(['set', 'menu', '', true]); // setDebugging(true);
     window.electron.compile(projectPath, 'main');
     window.electron.compile(projectPath, 'renderer');
     window.electron.compile(projectPath, 'electron');
@@ -45,15 +30,8 @@ function Menu(props: MenuProps) {
 
   const stopDebug = useCallback(async () => {
     window.electron.kill();
-    dispatch(['menu.running', false])
-    // setDebugging(false);
+    dispatch(['menu.running', false]);
   }, []);
-
-  // const handleTabSelected = useCallback((value: string) => dispatch({
-  //   section: 'menu',
-  //   field: 'selectedTab',
-  //   newValue: value
-  // }), [dispatch]);
 
   const rightMenu = (
     <AntMenu>
@@ -61,6 +39,8 @@ function Menu(props: MenuProps) {
       <AntMenu.Item key="2">Publish</AntMenu.Item>
     </AntMenu>
   );
+
+  const loadIcon = <LoadingOutlined spin />;
 
   return (
     <div className="Menu">
