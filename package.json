@@ -10,7 +10,7 @@
     "start:main": "tsc --project config/main/tsconfig.json --watch",
     "start:renderer": "webpack --config config/renderer/webpack.config.js --mode=development --watch",
     "start:electron": "electron .",
-    "start": "concurrently \"npm:start:main\" \"npm:start:renderer\" \"pm:start:electron\"",
+    "start": "concurrently \"npm:start:main\" \"npm:start:renderer\" \"npm:start:electron\"",
     "dist": "electron-builder"
   },
   "author": "Jan Hellar",
